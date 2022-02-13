@@ -1,0 +1,22 @@
+- hosts: all
+  become: true
+  vars_files:
+  - .env.yml
+
+  tasks:
+  - name: Add a new user, set shell, and set password.
+    user:
+      name: "{{ username }}"
+      shell: /bin/bash
+      password: "{{ password_hash }}"
+  
+  - name: Add user to sudoers group
+    copy:
+      dest: /etc/sudoers.d/{{ username }}
+      content: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
+
+  - name: Copy SSH public key
+    authorized_key:
+      user: "{{ username }}"
+      state: present
+      key: "{{ lookup('file', public_key_file) }}"
