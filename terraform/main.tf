@@ -1,9 +1,3 @@
-# export TF_VAR_do_token=do-token
-# export TF_VAR_cf_key=cf-api-key
-# export TF_VAR_cf_email=mail@domain.com
-# export TF_VAR_cf_zone_id=zone-id
-# terraform apply
-
 terraform {
   required_providers {
     digitalocean = {
@@ -46,11 +40,12 @@ provider "cloudflare" {
 
 # Create a web server
 resource "digitalocean_droplet" "blakerenton-net" {
-  image     = "ubuntu-21-10-x64"
-  name      = "blakerenton-net-tf"
-  region    = "nyc1"
-  size      = "s-1vcpu-1gb"
-  ssh_keys  = [ "75:1c:b4:af:e1:70:dc:25:1c:93:0a:7f:e7:ba:70:7c" ]
+  image       = "ubuntu-21-10-x64"
+  name        = "blakerenton-net"
+  region      = "nyc1"
+  size        = "s-1vcpu-1gb"
+  monitoring  = true
+  ssh_keys    = [ "75:1c:b4:af:e1:70:dc:25:1c:93:0a:7f:e7:ba:70:7c" ]
 }
 
 # Create a CloudFlare record
