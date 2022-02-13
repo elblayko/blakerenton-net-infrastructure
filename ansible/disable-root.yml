@@ -1,4 +1,10 @@
+# Disables root and password login over SSH.
+#
+# Example usage:
+# ansible-playbook -i inventory disable-root.yml
+---
 - hosts: all
+  gather_facts: false
   become: true
 
   tasks:
@@ -25,3 +31,4 @@
     service:
       name: sshd
       state: restarted
+      
