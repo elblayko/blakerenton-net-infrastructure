@@ -1,0 +1,43 @@
+- hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+  - name: Clone production repository
+    git:
+      repo: https://github.com/elblayko/blakerenton-net-platform.git
+      dest: /usr/local/share/blakerenton-net
+
+  - name: Create acme.json and set permissions
+    become: true
+    file:
+      path: /usr/local/share/blakerenton-net/traefik/acme.json
+      state: touch
+      mode: 0600
+  
+  - name: Create .env and set permissions
+    file:
+      path: /usr/local/share/blakerenton-net/traefik/.env
+      state: touch
+      mode: 0600
+
+  - name: Add CloudFlare API key to .env
+    lineinfile:
+      path: /usr/local/share/blakerenton-net/traefik/.env
+      line: "CF_API_KEY={{ lookup('env', 'TF_VAR_cf_key') }}"
+      insertafter: EOF
+    
+  - name: Add CloudFlare API e-mail to .env
+    lineinfile:
+      path: /usr/local/share/blakerenton-net/traefik/.env
+      line: "CF_API_EMAIL={{ lookup('env', 'TF_VAR_cf_email') }}"
+      insertafter: EOF
+      
+    # Ansible doesn't support Docker Compose > 2.0, use shell instead.
+  - name: Start Traefik service
+    shell:
+      cmd: cd /usr/local/share/blakerenton-net/traefik && docker compose up -d --force-recreate
+
+  - name: Start LittleLink service
+    shell:
+      cmd: "cd /usr/local/share/blakerenton-net/home && docker compose up -d --force-recreate"
