@@ -34,9 +34,13 @@
       - docker-ce-cli
       - containerd.io
 
+  - name: Create docker compose library folder
+    file:
+      path: /usr/local/lib/docker/cli-plugins/
+      state: directory
+
   - name: Install Docker Compose
     get_url:
-      url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64
-      dest: /usr/local/bin/docker-compose
+      url: https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64
+      dest: /usr/local/lib/docker/cli-plugins/docker-compose
       mode: '0755'
-      
