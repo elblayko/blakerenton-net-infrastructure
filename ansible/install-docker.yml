@@ -5,6 +5,7 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
   
   tasks:
   - name: Install packages to allow apt to use a repository over HTTPS

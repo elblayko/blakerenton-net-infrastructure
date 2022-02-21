@@ -9,11 +9,17 @@
 ---
 - hosts: all
   become: true
+  gather_facts: false
   
   tasks:
-  - name: 
-    community.general.ufw:
+  - name: Set UFW rate limit
+    ufw:
       rule: limit
       port: ssh
       proto: tcp
+
+  - name: Set UFW to enabled
+    ufw:
+      state: enabled
+      policy: allow
       
