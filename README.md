@@ -10,13 +10,10 @@ https://cloud.digitalocean.com/account/security
 
 # Usage
 
-## Configure API keys:
+## Required environment variables:
 
-`.bashrc/.zshrc` or in-line:
+`.bashrc/.zshrc`:
 ```
-# https://cloud.digitalocean.com/account/api/tokens
-export TF_VAR_do_token=digital-ocean-token
-
 # https://dash.cloudflare.com/profile/api-tokens
 export TF_VAR_cf_key=cloudflare-api-key
 
@@ -25,6 +22,9 @@ export TF_VAR_cf_email=mail@domain.com
 
 # Available in CloudFlare zone dashboard.
 export TF_VAR_cf_zone_id=cloudflare-zone-id
+
+# https://cloud.digitalocean.com/account/api/tokens
+export TF_VAR_do_token=digital-ocean-token
 ```
 
 ## Apply provider configuration:
@@ -32,16 +32,25 @@ export TF_VAR_cf_zone_id=cloudflare-zone-id
 ```
 cd terraform && terraform apply
 ```
-Annotate the IPv4 address and add to `ansible/inventory`
+Annotate the IPv4 address.
 
 ## Apply Ansible configuration:
 
+Create a unix user account with sudo capabilities.  Add a comma for in-line hosts or specify an inventory file.  The playbook expects "username", "password", and "gh_user" environment variables.
 ```
-cd ansible
+$ ansible-playbook -i 127.0.0.1, add-sudo-user.yml -u root
+```
 
-# Create a unix user account with sudo capabilities.
-username="name" password="pw" gh_user="username" ansible-playbook -i inventory add-sudo-user.yml -u root
-
-# Run remaining playbooks.  Add a comma for in-line hosts or specify an inventory file.
+Run setup playbooks.
+```
 ansible-playbook -i 127.0.0.1, {disable-root.yml,rate-limit.yml,update-all.yml,install-docker.yml}
 ```
+
+Deploy the web application.
+```
+$ ansible-playbook -i 127.0.0.1, deploy-web.yml
+```
+
+# CloudFlare SSL/TLS Configuration
+
+CloudFlare's SSL/TLS encryption mode must be set to either Full or Full (strict) to prevent a redirect loop.  The setting may be managed in the zone's SSL/TLS settings page.
