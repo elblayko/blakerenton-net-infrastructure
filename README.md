@@ -42,6 +42,6 @@ cd ansible
 # Create a unix user account with sudo capabilities.
 username="name" password="pw" gh_user="username" ansible-playbook -i inventory add-sudo-user.yml -u root
 
-# Run remaining playbooks.
-ansible-playbook -i inventory {disable-root.yml,update-all.yml,install-docker.yml}
+# Run remaining playbooks.  Add a comma for in-line hosts or specify an inventory file.
+ansible-playbook -i 127.0.0.1, {disable-root.yml,rate-limit.yml,update-all.yml,install-docker.yml}
 ```
