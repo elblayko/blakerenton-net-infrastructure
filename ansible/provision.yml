@@ -56,19 +56,13 @@
     notify:
       - restart sshd
 
-  handlers:
-  - name: restart sshd
-    service:
-      name: sshd
-      state: restarted
-
   - name: Configure UFW SSH rate limiting
     ufw:
       rule: limit
       port: ssh
       proto: tcp
 
-  - name: Unable the UFW firewall
+  - name: Enable the UFW firewall
     ufw:
       state: enabled
       policy: allow
@@ -89,6 +83,12 @@
       src: /etc/fail2ban/jail.conf
       dest: /etc/fail2ban/jail.local
       remote_src: yes
+
+  handlers:
+  - name: restart sshd
+    service:
+      name: sshd
+      state: restarted
 
 ##################################################################
 # Docker Configuration
