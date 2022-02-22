@@ -142,12 +142,6 @@ resource "digitalocean_firewall" "blakerenton-net" {
     source_addresses = ["0.0.0.0/0", "::/0"]
   }
 
-  # ICMP Configuration
-  inbound_rule {
-    protocol = "icmp"
-    source_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
   # Outbound Configuration
   outbound_rule {
     protocol = "tcp"
@@ -158,11 +152,6 @@ resource "digitalocean_firewall" "blakerenton-net" {
   outbound_rule {
     protocol = "udp"
     port_range = "1-65535"
-    destination_addresses = ["0.0.0.0/0", "::/0"]
-  }
-
-  outbound_rule {
-    protocol = "icmp"
     destination_addresses = ["0.0.0.0/0", "::/0"]
   }
 }
