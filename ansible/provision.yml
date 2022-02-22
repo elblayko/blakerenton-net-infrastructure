@@ -1,0 +1,136 @@
+# System provisioning playbook to do the following:
+#
+# - Perform package and system updates
+# - Set the system timezone
+# - Disable remote root logon and password authentication
+# - Configure SSH rate limiting
+# - Install and configure fail2ban
+# - Install and configure Docker and Docker Compose
+#
+# Usage example:
+# ansible-playbook -i localhost, provision.yml
+---
+
+##################################################################
+# System Updates
+
+- name: Update the package cache and upgrade all installed packages
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:  
+  - name: Run the upgrade command
+    apt:
+      upgrade: yes
+      update_cache: yes
+
+  - name: Set timezone to America/Chicago
+    timezone:
+      name: America/Chicago
+
+##################################################################
+# Security Implementation
+
+- name: Configure security settings
+  become: true
+  hosts: all
+  gather_facts: false
+
+  tasks:
+  - name: Disable root access over SSH
+    lineinfile: 
+      dest: /etc/ssh/sshd_config
+      regexp: "^PermitRootLogin"
+      line: "PermitRootLogin no"
+      state: present
+    notify:
+      - restart sshd
+
+  - name: Disable password login over SSH
+    lineinfile: 
+      dest: /etc/ssh/sshd_config 
+      regexp: "^PasswordAuthentication" 
+      line: "PasswordAuthentication no" 
+      state: present
+    notify:
+      - restart sshd
+
+  handlers:
+  - name: restart sshd
+    service:
+      name: sshd
+      state: restarted
+
+  - name: Configure UFW SSH rate limiting
+    ufw:
+      rule: limit
+      port: ssh
+      proto: tcp
+
+  - name: Unable the UFW firewall
+    ufw:
+      state: enabled
+      policy: allow
+
+  - name: Install fail2ban
+    apt:
+      name: fail2ban
+      state: present
+
+  - name: Backup initial fail2ban configuration
+    copy:
+      src: /etc/fail2ban/fail2ban.conf
+      dest: /etc/fail2ban/fail2ban.local
+      remote_src: yes
+
+  - name: Backup initial fail2ban jails
+    copy:
+      src: /etc/fail2ban/jail.conf
+      dest: /etc/fail2ban/jail.local
+      remote_src: yes
+
+##################################################################
+# Docker Configuration
+
+- name: Install and configure Docker
+  hosts: all
+  become: true
+  gather_facts: false
+  
+  tasks:
+  - name: Install packages to allow apt to use a repository over HTTPS
+    apt:
+      pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+
+  - name: Add Docker's official GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu focal stable
+      state: present
+
+  - name: Install Docker engine
+    apt:
+      pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+
+  - name: Create Docker Compose plugins folder
+    file:
+      path: /usr/local/lib/docker/cli-plugins/
+      state: directory
+
+  - name: Install Docker Compose
+    get_url:
+      url: https://github.com/docker/compose/releases/download/v2.2.3/docker-compose-linux-x86_64
+      dest: /usr/local/lib/docker/cli-plugins/docker-compose
+      mode: '0755'

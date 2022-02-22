@@ -1,19 +1,22 @@
-# Adds a unix user account with sudo capabilities.
-# Public key is taken from the provided Github user account.
+# Adds a unix user account with sudo capabilities. Public key retreived from GitHub.
+# Ansible expects "username", "password", and "gh_user" environment variables.
 #
 # Usage example:
-# username="name" password="pw" gh_user="username" ansible-playbook -i inventory add-sudo-user.yml -u root
+# username="name" password="pw" gh_user="username" ansible-playbook -i inventory create-user.yml -u root
 ---
-- hosts: all
-  gather_facts: false
+
+- name: Create sudo-capable user
+  hosts: all
   become: true
+  gather_facts: false
+  
   vars:
     username: "{{ lookup('env', 'username') }}"
     password: "{{  lookup('env', 'password') | password_hash('sha512') }}"
     gh_user: "{{ lookup('env', 'gh_user') }}"
 
   tasks:
-  - name: Add a new user, set shell, and set password.
+  - name: Create a new user, set shell, and set password
     user:
       name: "{{ username }}"
       shell: /bin/bash
@@ -24,7 +27,7 @@
       dest: "/etc/sudoers.d/{{ username }}"
       content: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
 
-  - name: Add SSH public keys from GitHub
+  - name: Copy SSH public keys from GitHub and add to authorized_keys
     authorized_key:
       user: "{{ username }}"
       key: "https://github.com/{{ gh_user }}.keys"
