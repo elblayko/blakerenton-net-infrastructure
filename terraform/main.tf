@@ -179,6 +179,30 @@ resource "cloudflare_record" "blakerenton-net-www" {
   proxied = true
 }
 
+resource "cloudflare_record" "blakerenton-net-spf" {
+  zone_id = var.cf_zone_id
+  name    = "blakerenton.net"
+  value   = "v=spf1 -all"
+  type    = "TXT"
+  ttl     = 1 # auto
+}
+
+resource "cloudflare_record" "blakerenton-net-dmarc" {
+  zone_id = var.cf_zone_id
+  name    = "_dmarc"
+  value   = "v=DMARC1; p=reject; sp=reject; adkim=s; aspf=s;"
+  type    = "TXT"
+  ttl     = 1 # auto
+}
+
+resource "cloudflare_record" "blakerenton-net-dkim" {
+  zone_id = var.cf_zone_id
+  name    = "*._domainkey"
+  value   = "v=DKIM1; p="
+  type    = "TXT"
+  ttl     = 1 # auto
+}
+
 ####################################################################
 # After completion
 
