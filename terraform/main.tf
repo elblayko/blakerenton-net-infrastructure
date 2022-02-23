@@ -179,26 +179,6 @@ resource "cloudflare_record" "blakerenton-net-www" {
   proxied = true
 }
 
-# Create traefik cname record
-resource "cloudflare_record" "blakerenton-net-traefik" {
-  zone_id = var.cf_zone_id
-  name    = "traefik"
-  value   = "blakerenton.net"
-  type    = "CNAME"
-  ttl     = 1 # auto
-  proxied = true
-}
-
-# Create status cname record
-resource "cloudflare_record" "blakerenton-net-status" {
-  zone_id = var.cf_zone_id
-  name    = "status"
-  value   = "blakerenton.net"
-  type    = "CNAME"
-  ttl     = 1 # auto
-  proxied = true
-}
-
 ####################################################################
 # After completion
 
